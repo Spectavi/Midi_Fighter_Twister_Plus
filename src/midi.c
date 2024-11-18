@@ -431,6 +431,20 @@ void midi_stream_sysex (const uint8_t length, uint8_t* data)
 **/
 void process_midi_packet(MIDI_EventPacket_t input_event) // Midi Feedback - Packet
 {
+	// ENABLES MIDI THRU
+	// E.G. Allows you to send MIDI CC to the device to change a knobs value,
+	// while also passing it through.
+    	if (midi_is_usb()){
+    		int error_code = MIDI_Device_SendEventPacket(g_midi_interface_info, &input_event);
+    		//if (error_code){
+    		//	int i = 0 + error_code;
+    		//}
+    		UNUSED(error_code);
+    	} else {
+    		#if ENABLE_LEGACY_MIDI_USART_OUTPUT > 0
+    			MIDI_send_legacy_packet(&midi_event);
+    		#endif
+    	}
 	// Parse the USB-MIDI packet to see what it contains
 	switch (input_event.Event) {
 		case 0xF :
